@@ -247,3 +247,8 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+*.Rproj
+.gitignore
+*.pdf
+*.bat
