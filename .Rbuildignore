@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+.bat
+.pdf
+README.md
+LICENSE.md
+SECURITY.md

@@ -1,0 +1,19 @@
+Package: sdclonn
+Type: Package
+Title: Konfidensialitet i lønnsstatistikk
+Version: 0.5.0
+Date: 2024-10-28
+Authors@R: c(person("Øyvind", "Langsrud", role = c("aut", "cre"), email = "oyl@ssb.no"),
+             person("Statistics Norway", role = "cph"))
+Author: Øyvind Langsrud [aut, cre] 
+Maintainer: Øyvind Langsrud <oyl@ssb.no>
+Depends: R (>= 3.5.0)
+Imports: SSBtools (>= 1.5.2), Matrix, GaussSuppression, SmallCountRounding 
+Description: Konfidensialitet i lønnsstatistikk.
+License: MIT + file LICENSE
+Roxygen: list(markdown = TRUE)
+Encoding: UTF-8
+RoxygenNote: 7.3.1
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
