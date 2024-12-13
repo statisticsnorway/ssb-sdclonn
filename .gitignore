@@ -252,3 +252,4 @@ rsconnect/
 .gitignore
 *.pdf
 *.bat
+docs
