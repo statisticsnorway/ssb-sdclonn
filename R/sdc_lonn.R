@@ -410,7 +410,8 @@ sdc_lonn <- function(data,
     list2env(out$annet, envir = environment())
   } else {  ########### START - Vanlig input-data. Altså ikke "aggregated" i input.  
   
-    
+    data <- as.data.frame(data) # Fiks for tibble og data.table input
+     
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
       dim_var <- all.vars(formula)
