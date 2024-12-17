@@ -77,9 +77,15 @@ Se tekst (n_within) i  \code{\link{sdc_lonn_extra_details}}.}
 
 \item{between_regel}{Ved TRUE er "between" utgangspunkt for dominansregler}
 
-\item{k1}{Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.}
+\item{k1}{Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av ett foretak.
+F.eks. betyr verdien \code{k1 = 80} her at hvis ett foretak, der \code{krav_ikke_offentlig = 0},
+står for mer enn 80\% av alle arbeidsforholdene og/eller mer enn 80\% av summen av lønn
+når det fordeles etter \code{between}-variabelene, så slår dominansprikkingen ut.}
 
-\item{k2}{Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.}
+\item{k2}{Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av  to foretak.
+F.eks. betyr verdien \code{k2 = 90} her at hvis to foretak,  der \code{krav_ikke_offentlig = 0},
+står for mer enn 90\% av alle arbeidsforholdene og/eller mer enn 90\% av summen av lønn
+når det fordeles etter \code{between}-variabelene, så slår dominansprikkingen ut.}
 
 \item{secondary2}{\strong{Når \code{secondary2} er \code{TRUE}} sekundærprikkes det i to omganger.
 \itemize{

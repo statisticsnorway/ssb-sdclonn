@@ -114,8 +114,14 @@
 #' @param freq_within    max-verdi for primærprikking av Antall arbeidsforhold "within". 
 #'                       Se tekst (n_within) i  \code{\link{sdc_lonn_extra_details}}.
 #' @param between_regel  Ved TRUE er "between" utgangspunkt for dominansregler 
-#' @param k1 Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.    
-#' @param k2 Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi. 
+#' @param k1  Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av ett foretak.  
+#'            F.eks. betyr verdien `k1 = 80` her at hvis ett foretak, der `krav_ikke_offentlig = 0`, 
+#'            står for mer enn 80% av alle arbeidsforholdene og/eller mer enn 80% av summen av lønn 
+#'            når det fordeles etter `between`-variabelene, så slår dominansprikkingen ut.  
+#' @param k2  Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av  to foretak.  
+#'            F.eks. betyr verdien `k2 = 90` her at hvis to foretak,  der `krav_ikke_offentlig = 0`, 
+#'            står for mer enn 90% av alle arbeidsforholdene og/eller mer enn 90% av summen av lønn 
+#'            når det fordeles etter `between`-variabelene, så slår dominansprikkingen ut. 
 #' @param secondary2 **Når `secondary2` er `TRUE`** sekundærprikkes det i to omganger.
 #'   * I første omgang sekundærprikkes det ikke med tanke 
 #'          på å hindre tilbakeregning  av between-totaler av Antall arbeidsforhold 
