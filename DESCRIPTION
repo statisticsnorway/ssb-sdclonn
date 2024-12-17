@@ -1,8 +1,8 @@
 Package: sdclonn
 Type: Package
 Title: Konfidensialitet i lønnsstatistikk
-Version: 0.5.0
-Date: 2024-10-28
+Version: 0.5.1
+Date: 2024-12-17
 Authors@R: c(person("Øyvind", "Langsrud", role = c("aut", "cre"), email = "oyl@ssb.no"),
              person("Statistics Norway", role = "cph"))
 Author: Øyvind Langsrud [aut, cre] 
