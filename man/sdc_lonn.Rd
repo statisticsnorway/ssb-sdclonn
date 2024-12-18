@@ -77,9 +77,15 @@ Se tekst (n_within) i  \code{\link{sdc_lonn_extra_details}}.}
 
 \item{between_regel}{Ved TRUE er "between" utgangspunkt for dominansregler}
 
-\item{k1}{Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.}
+\item{k1}{Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av ett foretak.
+F.eks. betyr verdien \code{k1 = 80} her at hvis ett foretak, der \code{krav_ikke_offentlig = 0},
+står for mer enn 80\% av alle arbeidsforholdene og/eller mer enn 80\% av summen av lønn
+når det fordeles etter \code{between}-variabelene, så slår dominansprikkingen ut.}
 
-\item{k2}{Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.}
+\item{k2}{Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av  to foretak.
+F.eks. betyr verdien \code{k2 = 90} her at hvis to foretak,  der \code{krav_ikke_offentlig = 0},
+står for mer enn 90\% av alle arbeidsforholdene og/eller mer enn 90\% av summen av lønn
+når det fordeles etter \code{between}-variabelene, så slår dominansprikkingen ut.}
 
 \item{secondary2}{\strong{Når \code{secondary2} er \code{TRUE}} sekundærprikkes det i to omganger.
 \itemize{
@@ -189,6 +195,8 @@ data frame eller liste
 Input er mikrodata og output er (samordnede) tabell(er) med alle ønskede aggregeringsnivåer.
 }
 \details{
+Det er cellene med laveste antall arbeidsforhold som i utgangspunktet velges ut til sekundærprikkingen.
+Teknisk sett er det \code{n_arbeidsforhold} som styrer prioriteringsrekkefølgen.
 Grunnen til at primary2 og secondary2 ikke nødvendigvis summeres til suppressed2 er
 at det i primary2 kan inngå celler som er med i suppressed. Disse er fjernet fra suppressed2.\tabular{rl}{
    \strong{Når regel_within_ er starten på} \tab \strong{variabelnavnet} \cr
@@ -251,17 +259,21 @@ For disse radene er \code{regel_}-variablene og \code{regel_within_}-variablene 
    \code{dominant1_l} \tab = \code{regel_dominant1_l > k1} AND \code{ikke_offentlig} der \code{k1} er parameter i dominansregel \cr
    \code{dominant2_l} \tab = \code{regel_dominant2_l > k2} AND \code{ikke_offentlig} der \code{k2} er parameter i dominansregel \cr
    \code{dominant} \tab = \code{dominant1_n} OR \code{dominant2_n} OR \code{dominant1_l} OR \code{dominant2_l} \cr
-   \code{n_within} \tab = \code{!regel_istot} AND \code{regel_within_n_arbeidsforhold <= freq_within} \cr
-    \tab Dette er krav til primærprikking av Antall arbeidsforhold "within" basert på frekvensregel. \cr
-    \tab \code{freq_within} er input-parameter, 2 er default. \cr
+   \code{n_within} \tab = \code{!regel_istot} AND \code{regel_within_n_arbeidsforhold <= freq_within}, \cr
+    \tab der \code{freq_within} er input-parameter (2 er default). \cr
+    \tab Når \code{roundBase} ikke brukes, er dette er krav til primærprikking av \cr
+    \tab antall arbeidsforhold "within" basert på frekvensregel. \cr
+    \tab Når \code{roundBase} brukes, inngår kravet kun i andre runde primærprikking. \cr
    \code{istot} \tab = \code{regel_istot} \cr
    \code{grenseverdi} \tab = \code{regel_within_okantall < grenseverdi}   (altså krav_grenseverdi = ...) \cr
     \tab \code{grenseverdi} er input-parameter, 100 er default. (altså ikke krav_grenseverdi) \cr
    \code{grenseverdi2} \tab = \code{regel_within$n_arbeidsforhold > 0 & regel_within_okantall < grenseverdi2} \cr
    \code{primary} \tab = (\code{!istot} AND \code{dominant}) OR \code{n_within.} \cr
     \tab Dette er primærprikking til grunn for føreste runde med sekundærprikking. \cr
+    \tab Dette modifiseres når \code{roundBase} brukes (se parameterbeskrivelse). \cr
    \code{primary2} \tab = (\code{istot} AND \code{dominant})  OR  \code{grenseverdi2_krav} \cr
     \tab Dette er primærprikking til grunn for andre runde med sekundærprikking. \cr
+    \tab Dette modifiseres når \code{roundBase} brukes (se parameterbeskrivelse). \cr
    \code{secondary} \tab Resultat fra første runde med sekundærprikking. \cr
    \code{secondary2} \tab Resultat fra andre runde med sekundærprikking. \cr
    \code{suppressed} \tab All prikking i første runde. \cr

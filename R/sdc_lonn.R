@@ -3,6 +3,8 @@
 #' 
 #' Input er mikrodata og output er (samordnede) tabell(er) med alle ønskede aggregeringsnivåer. 
 #' 
+#' Det er cellene med laveste antall arbeidsforhold som i utgangspunktet velges ut til sekundærprikkingen. 
+#' Teknisk sett er det `n_arbeidsforhold` som styrer prioriteringsrekkefølgen.
 #' Grunnen til at primary2 og secondary2 ikke nødvendigvis summeres til suppressed2 er 
 #' at det i primary2 kan inngå celler som er med i suppressed. Disse er fjernet fra suppressed2.
 #' 
@@ -66,17 +68,21 @@
 #' |    `dominant1_l`|= `regel_dominant1_l > k1` AND `ikke_offentlig` der `k1` er parameter i dominansregel      |
 #' |    `dominant2_l`|= `regel_dominant2_l > k2` AND `ikke_offentlig` der `k2` er parameter i dominansregel      |
 #' |       `dominant`|= `dominant1_n` OR `dominant2_n` OR `dominant1_l` OR `dominant2_l`                     |
-#' |     `n_within`|= `!regel_istot` AND `regel_within_n_arbeidsforhold <= freq_within`                        |
-#' |               | Dette er krav til primærprikking av Antall arbeidsforhold "within" basert på frekvensregel. |
-#' |               | `freq_within` er input-parameter, 2 er default.                        |
+#' |     `n_within`|= `!regel_istot` AND `regel_within_n_arbeidsforhold <= freq_within`,  |
+#' |               | der `freq_within` er input-parameter (2 er default).  |
+#' |               | Når `roundBase` ikke brukes, er dette er krav til primærprikking av  |
+#' |               | antall arbeidsforhold "within" basert på frekvensregel.  |
+#' |               | Når `roundBase` brukes, inngår kravet kun i andre runde primærprikking. |
 #' |        `istot`|= `regel_istot`                                                                        |
 #' |  `grenseverdi`|= `regel_within_okantall < grenseverdi`   (altså krav_grenseverdi = ...)               |
 #' |               | `grenseverdi` er input-parameter, 100 er default. (altså ikke krav_grenseverdi)               |
 #' | `grenseverdi2`|= `regel_within$n_arbeidsforhold > 0 & regel_within_okantall < grenseverdi2`           |
 #' |      `primary`|= (`!istot` AND `dominant`) OR `n_within.`                                               |
 #' |               | Dette er primærprikking til grunn for føreste runde med sekundærprikking. |
+#' |               | Dette modifiseres når `roundBase` brukes (se parameterbeskrivelse).   |
 #' |     `primary2`|= (`istot` AND `dominant`)  OR  `grenseverdi2_krav`                                                               |
 #' |               | Dette er primærprikking til grunn for andre runde med sekundærprikking.    |
+#' |               | Dette modifiseres når `roundBase` brukes (se parameterbeskrivelse).   |
 #' |    `secondary`|Resultat fra første runde med sekundærprikking.                                        |
 #' |   `secondary2`|Resultat fra andre runde med sekundærprikking.                                         |
 #' |   `suppressed`|All prikking i første runde.                                                           |
@@ -114,8 +120,14 @@
 #' @param freq_within    max-verdi for primærprikking av Antall arbeidsforhold "within". 
 #'                       Se tekst (n_within) i  \code{\link{sdc_lonn_extra_details}}.
 #' @param between_regel  Ved TRUE er "between" utgangspunkt for dominansregler 
-#' @param k1 Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi.    
-#' @param k2 Parameter i dominansregler (en prosentverdi). TRUE betyr vanlig verdi. 
+#' @param k1  Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av ett foretak.  
+#'            F.eks. betyr verdien `k1 = 80` her at hvis ett foretak, der `krav_ikke_offentlig = 0`, 
+#'            står for mer enn 80% av alle arbeidsforholdene og/eller mer enn 80% av summen av lønn 
+#'            når det fordeles etter `between`-variabelene, så slår dominansprikkingen ut.  
+#' @param k2  Parameter i dominansprikking. Gjelder for dominansprikkingen der man ser på dominansen av  to foretak.  
+#'            F.eks. betyr verdien `k2 = 90` her at hvis to foretak,  der `krav_ikke_offentlig = 0`, 
+#'            står for mer enn 90% av alle arbeidsforholdene og/eller mer enn 90% av summen av lønn 
+#'            når det fordeles etter `between`-variabelene, så slår dominansprikkingen ut. 
 #' @param secondary2 **Når `secondary2` er `TRUE`** sekundærprikkes det i to omganger.
 #'   * I første omgang sekundærprikkes det ikke med tanke 
 #'          på å hindre tilbakeregning  av between-totaler av Antall arbeidsforhold 
@@ -398,7 +410,8 @@ sdc_lonn <- function(data,
     list2env(out$annet, envir = environment())
   } else {  ########### START - Vanlig input-data. Altså ikke "aggregated" i input.  
   
-    
+    data <- as.data.frame(data) # Fiks for tibble og data.table input
+     
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
       dim_var <- all.vars(formula)
