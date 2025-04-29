@@ -176,7 +176,7 @@ Bruk av \code{suppressed_data} kan føre til at celler allikevel blir primærpri
 \item{run_gauss}{Ingen sekundærprikking dersom denne settes til \code{FALSE}, Default er \code{TRUE}.}
 
 \item{roundBase}{Ved andre verdier enn 0 foretas avrunding av antall arbeidsforhold.
-Funksjonen  \code{\link{PLSroundingPublish}} bruker da denne \code{roundBase}-parameteren.
+Funksjonen  \code{\link[SmallCountRounding]{PLSroundingPublish}} bruker da denne \code{roundBase}-parameteren.
 Ny ekstra variabel helt til slutt i output er \code{rounded_antall_arbeidsforhold}.
 Variabelen \code{prikket_antall_arbeidsforhold} blir endret til å inneholde de samme avrundede verdiene,
 bortsett fra at noen av dem er prikket.

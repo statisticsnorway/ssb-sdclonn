@@ -201,7 +201,7 @@
 #'                         Bruk av `suppressed_data` kan føre til at celler allikevel blir primærprikket.  
 #' @param run_gauss  Ingen sekundærprikking dersom denne settes til `FALSE`, Default er `TRUE`. 
 #' @param roundBase Ved andre verdier enn 0 foretas avrunding av antall arbeidsforhold. 
-#'                  Funksjonen  \code{\link{PLSroundingPublish}} bruker da denne `roundBase`-parameteren.
+#'                  Funksjonen  \code{\link[SmallCountRounding]{PLSroundingPublish}} bruker da denne `roundBase`-parameteren.
 #'                  Ny ekstra variabel helt til slutt i output er `rounded_antall_arbeidsforhold`.
 #'                  Variabelen `prikket_antall_arbeidsforhold` blir endret til å inneholde de samme avrundede verdiene, 
 #'                  bortsett fra at noen av dem er prikket.     
