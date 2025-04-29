@@ -26,6 +26,7 @@ sdc_lonn(
   secondary2 = TRUE,
   grenseverdi = 100,
   grenseverdi2 = 4,
+  prosentiler = c(nedre_kvartil = 25, median = 50, ovre_kvartil = 75),
   extend0 = TRUE,
   removeEmpty = FALSE,
   formula = NULL,
@@ -113,6 +114,14 @@ Se \code{\link{sdc_lonn_extra_details}}.}
 \item{grenseverdi2}{Minste antall ok arbeidsforhold som ikke primærprikkes (\code{primary2}) forut for andre runde sekundærprikking.
 Se \code{\link{sdc_lonn_extra_details}}.}
 
+\item{prosentiler}{Prosentiler med navn som skal brukes i output. Parameteren kan f.eks. settes til:
+\itemize{
+\item \code{c(p10 = 10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, p90 = 90)}
+\item \code{c(10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, 90)}
+}
+
+Disse to eksemplene gir samme resultat fordi navn settes til prosentverdien med \code{p} foran dersom navn mangler.}
+
 \item{extend0}{Ved noe annet enn \code{extend0 = TRUE}  kjøres \code{Extend0} i SSBtools. Trengs for beskyttelse av "within"-0-ere.
 \itemize{
 \item \strong{\code{extend0 = TRUE}} (default): Innen hver between-gruppen så sjekkes det om alle kombinasjoner av within-variablene som fra før
@@ -167,7 +176,7 @@ Bruk av \code{suppressed_data} kan føre til at celler allikevel blir primærpri
 \item{run_gauss}{Ingen sekundærprikking dersom denne settes til \code{FALSE}, Default er \code{TRUE}.}
 
 \item{roundBase}{Ved andre verdier enn 0 foretas avrunding av antall arbeidsforhold.
-Funksjonen  \code{\link{PLSroundingPublish}} bruker da denne \code{roundBase}-parameteren.
+Funksjonen  \code{\link[SmallCountRounding]{PLSroundingPublish}} bruker da denne \code{roundBase}-parameteren.
 Ny ekstra variabel helt til slutt i output er \code{rounded_antall_arbeidsforhold}.
 Variabelen \code{prikket_antall_arbeidsforhold} blir endret til å inneholde de samme avrundede verdiene,
 bortsett fra at noen av dem er prikket.

@@ -1,8 +1,8 @@
 Package: sdclonn
 Type: Package
 Title: Konfidensialitet i lønnsstatistikk
-Version: 0.5.1
-Date: 2024-12-17
+Version: 0.6.0
+Date: 2025-04-29
 Authors@R: c(person("Øyvind", "Langsrud", role = c("aut", "cre"), email = "oyl@ssb.no"),
              person("Statistics Norway", role = "cph"))
 Author: Øyvind Langsrud [aut, cre] 
@@ -13,9 +13,8 @@ Description: Konfidensialitet i lønnsstatistikk.
 License: MIT + file LICENSE
 Roxygen: list(markdown = TRUE)
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://github.com/statisticsnorway/ssb-sdclonn/
-
