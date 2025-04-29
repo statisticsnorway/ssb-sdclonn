@@ -26,6 +26,7 @@ sdc_lonn(
   secondary2 = TRUE,
   grenseverdi = 100,
   grenseverdi2 = 4,
+  prosentiler = c(nedre_kvartil = 25, median = 50, ovre_kvartil = 75),
   extend0 = TRUE,
   removeEmpty = FALSE,
   formula = NULL,
@@ -112,6 +113,14 @@ Se \code{\link{sdc_lonn_extra_details}}.}
 
 \item{grenseverdi2}{Minste antall ok arbeidsforhold som ikke primærprikkes (\code{primary2}) forut for andre runde sekundærprikking.
 Se \code{\link{sdc_lonn_extra_details}}.}
+
+\item{prosentiler}{Prosentiler med navn som skal brukes i output. Parameteren kan f.eks. settes til:
+\itemize{
+\item \code{c(p10 = 10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, p90 = 90)}
+\item \code{c(10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, 90)}
+}
+
+Disse to eksemplene gir samme resultat fordi navn settes til prosentverdien med \code{p} foran dersom navn mangler.}
 
 \item{extend0}{Ved noe annet enn \code{extend0 = TRUE}  kjøres \code{Extend0} i SSBtools. Trengs for beskyttelse av "within"-0-ere.
 \itemize{

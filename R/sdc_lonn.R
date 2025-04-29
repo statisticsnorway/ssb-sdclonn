@@ -151,6 +151,11 @@
 #'                     Se \code{\link{sdc_lonn_extra_details}}.
 #' @param grenseverdi2 Minste antall ok arbeidsforhold som ikke primærprikkes (`primary2`) forut for andre runde sekundærprikking.
 #'                     Se \code{\link{sdc_lonn_extra_details}}.
+#' @param prosentiler Prosentiler med navn som skal brukes i output. Parameteren kan f.eks. settes til:
+#'   * `c(p10 = 10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, p90 = 90)`
+#'   * `c(10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, 90)`
+#'   
+#'   Disse to eksemplene gir samme resultat fordi navn settes til prosentverdien med `p` foran dersom navn mangler. 
 #' @param extend0 Ved noe annet enn `extend0 = TRUE`  kjøres `Extend0` i SSBtools. Trengs for beskyttelse av "within"-0-ere. 
 #'   * **`extend0 = TRUE`** (default): Innen hver between-gruppen så sjekkes det om alle kombinasjoner av within-variablene som fra før 
 #'                          finnes i dataene også fins i den bestemte between-gruppen. Hvis ikke legges det til observasjoner med 0.
@@ -347,6 +352,7 @@ sdc_lonn <- function(data,
                      secondary2 = TRUE,
                      grenseverdi = 100,
                      grenseverdi2 = 4,
+                     prosentiler = c(nedre_kvartil = 25, median = 50, ovre_kvartil = 75),
                      extend0 = TRUE,
                      removeEmpty = FALSE,
                      formula = NULL,
@@ -365,6 +371,14 @@ sdc_lonn <- function(data,
     warning("dim_var_extra ignored when avoidHierarchical")
   }
   
+  quantile_probs <- prosentiler/100
+  quantile_w <- function(x, w) {
+    quantile_weighted(x = x, probs = quantile_probs, weights = w)
+  }
+  # Gjenbruker kode for å sette navn som mangler
+  prosentiler[] = paste0("p", prosentiler)
+  names(prosentiler) <- names(fix_char_names(prosentiler))
+  
   var_vektet <- fix_char_names(var_vektet)
   noen_fun_vars <- NULL
   for (i in seq_along(var_vektet)) {
@@ -373,7 +387,7 @@ sdc_lonn <- function(data,
     
     names(list_i) <- c(paste0(names(var_vektet)[i], "_gjennomsnitt"), 
       paste(paste0(names(var_vektet)[i], 
-        c("_nedre_kvartil", "_median", "_ovre_kvartil")), 
+        paste0("_", names(prosentiler))), 
         collapse = ","))
     
     noen_fun_vars <- c(noen_fun_vars, list_i)
@@ -388,7 +402,7 @@ sdc_lonn <- function(data,
     
     names(list_i) <- c(paste0(names(var_uvektet)[i], "_gjennomsnitt"), 
                        paste(paste0(names(var_uvektet)[i], 
-                                    c("_nedre_kvartil", "_median", "_ovre_kvartil")), 
+                                    paste0("_", names(prosentiler))), 
                              collapse = ","))
     
     noen_fun_vars <- c(noen_fun_vars, list_i)
