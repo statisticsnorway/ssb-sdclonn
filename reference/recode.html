@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">sdclonn</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,7 +72,7 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu">SSBtools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/SSBtoolsData.html" class="external-link">SSBtoolsData</a></span><span class="op">(</span><span class="st">"sprt_emp_withEU"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu">SSBtools</span><span class="fu">::</span><span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/SSBtoolsData.html" class="external-link">SSBtoolsData</a></span><span class="op">(</span><span class="st">"sprt_emp_withEU"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">recode</span><span class="op">(</span><span class="va">z</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y15-29"</span>, <span class="st">"Y30-64"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"young"</span>, <span class="st">"old"</span><span class="op">)</span>, oldvar <span class="op">=</span> <span class="st">"age"</span>, newvar <span class="op">=</span> <span class="st">"newage"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       age      geo year ths_per    eu newage</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  Y15-29    Spain 2014    66.9    EU  young</span>
@@ -117,7 +117,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17 Y30-64  Iceland   16     1.9 nonEU</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 18 Y30-64 Portugal   16    25.8    EU</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">SSBtools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/SSBtoolsData.html" class="external-link">SSBtoolsData</a></span><span class="op">(</span><span class="st">"sprt_emp_withEU"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="fu">SSBtools</span><span class="fu">::</span><span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/SSBtoolsData.html" class="external-link">SSBtoolsData</a></span><span class="op">(</span><span class="st">"sprt_emp_withEU"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">recode</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Y15-29"</span>, <span class="st">"Y30-64"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"young"</span>, <span class="st">"old"</span><span class="op">)</span>, oldvar <span class="op">=</span> <span class="st">"age"</span>, newvar <span class="op">=</span> <span class="st">"newage"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">recode</span><span class="op">(</span><span class="fl">2014</span><span class="op">:</span><span class="fl">2016</span>, <span class="fl">14</span><span class="op">:</span><span class="fl">16</span>, oldvar <span class="op">=</span> <span class="st">"year"</span><span class="op">)</span> </span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       age      geo year ths_per    eu newage</span>
@@ -150,7 +150,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">sdclonn</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,7 @@
 <span>  secondary2 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  grenseverdi <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  grenseverdi2 <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  prosentiler <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>nedre_kvartil <span class="op">=</span> <span class="fl">25</span>, median <span class="op">=</span> <span class="fl">50</span>, ovre_kvartil <span class="op">=</span> <span class="fl">75</span><span class="op">)</span>,</span>
 <span>  extend0 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  removeEmpty <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  formula <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -184,6 +185,12 @@ Se <code><a href="sdc_lonn_extra_details.html">sdc_lonn_extra_details</a></code>
 Se <code><a href="sdc_lonn_extra_details.html">sdc_lonn_extra_details</a></code>.</p></dd>
 
 
+<dt id="arg-prosentiler">prosentiler<a class="anchor" aria-label="anchor" href="#arg-prosentiler"></a></dt>
+<dd><p>Prosentiler med navn som skal brukes i output. Parameteren kan f.eks. settes til:</p><ul><li><p><code>c(p10 = 10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, p90 = 90)</code></p></li>
+<li><p><code>c(10, nedre_kvartil = 25, median = 50, ovre_kvartil = 75, 90)</code></p></li>
+</ul><p>Disse to eksemplene gir samme resultat fordi navn settes til prosentverdien med <code>p</code> foran dersom navn mangler.</p></dd>
+
+
 <dt id="arg-extend-">extend0<a class="anchor" aria-label="anchor" href="#arg-extend-"></a></dt>
 <dd><p>Ved noe annet enn <code>extend0 = TRUE</code>  kjøres <code>Extend0</code> i SSBtools. Trengs for beskyttelse av "within"-0-ere.</p><ul><li><p><strong><code>extend0 = TRUE</code></strong> (default): Innen hver between-gruppen så sjekkes det om alle kombinasjoner av within-variablene som fra før
 finnes i dataene også fins i den bestemte between-gruppen. Hvis ikke legges det til observasjoner med 0.
@@ -245,7 +252,7 @@ When <code>structuralEmpty</code> is <code>TRUE</code>, the following error mess
 <code>Suppressed</code> <code>cells</code> <code>with</code> <code>empty</code> <code>input</code> <code>will</code> <code>not</code> <code>be</code> <code>protected.</code>
 <code>Extend</code> <code>input</code> <code>data</code> <code>with</code> <code>zeros?</code>.
 When <code>removeEmpty</code> is <code>TRUE</code>, <code>structuralEmpty</code> is superfluous.
-Parameteren og beskrivelsen er kopiert fra <code><a href="https://rdrr.io/pkg/GaussSuppression/man/GaussSuppressionFromData.html" class="external-link">GaussSuppression::GaussSuppressionFromData</a></code>.
+Parameteren og beskrivelsen er kopiert fra <code><a href="https://statisticsnorway.github.io/ssb-gausssuppression/reference/GaussSuppressionFromData.html" class="external-link">GaussSuppression::GaussSuppressionFromData</a></code>.
 Bruk av <code>suppressed_data</code> kan føre til at celler allikevel blir primærprikket.</p></dd>
 
 
@@ -255,7 +262,7 @@ Bruk av <code>suppressed_data</code> kan føre til at celler allikevel blir prim
 
 <dt id="arg-roundbase">roundBase<a class="anchor" aria-label="anchor" href="#arg-roundbase"></a></dt>
 <dd><p>Ved andre verdier enn 0 foretas avrunding av antall arbeidsforhold.
-Funksjonen  <code>PLSroundingPublish</code> bruker da denne <code>roundBase</code>-parameteren.
+Funksjonen  <code><a href="https://statisticsnorway.github.io/ssb-smallcountrounding/reference/PLSrounding.html" class="external-link">PLSroundingPublish</a></code> bruker da denne <code>roundBase</code>-parameteren.
 Ny ekstra variabel helt til slutt i output er <code>rounded_antall_arbeidsforhold</code>.
 Variabelen <code>prikket_antall_arbeidsforhold</code> blir endret til å inneholde de samme avrundede verdiene,
 bortsett fra at noen av dem er prikket.
@@ -695,8 +702,8 @@ For disse radene er <code>regel_</code>-variablene og <code>regel_within_</code>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">####  Bruk av formula_selection + long_sdclonn  ####</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">s2a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out2</span>, <span class="op">~</span><span class="va">yrke1</span> <span class="op">*</span> <span class="va">sektor3</span> <span class="op">*</span> <span class="va">arb_heldeltid</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">s2b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out2</span>, <span class="op">~</span><span class="va">yrke3</span> <span class="op">*</span> <span class="va">arb_heldeltid</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s2a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out2</span>, <span class="op">~</span><span class="va">yrke1</span> <span class="op">*</span> <span class="va">sektor3</span> <span class="op">*</span> <span class="va">arb_heldeltid</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s2b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out2</span>, <span class="op">~</span><span class="va">yrke3</span> <span class="op">*</span> <span class="va">arb_heldeltid</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s2a_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="long_sdclonn.html">long_sdclonn</a></span><span class="op">(</span><span class="va">s2a</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s2b_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="long_sdclonn.html">long_sdclonn</a></span><span class="op">(</span><span class="va">s2b</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -713,8 +720,8 @@ For disse radene er <code>regel_</code>-variablene og <code>regel_within_</code>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GaussSuppression_anySum_numttH: .........................</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> GaussSuppression_anySum_numttH: .........................</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">s5a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out5</span>, <span class="op">~</span><span class="va">arb_fylke</span> <span class="op">*</span> <span class="op">(</span><span class="va">yrke1</span> <span class="op">+</span> <span class="va">yrke2</span><span class="op">)</span> <span class="op">*</span> <span class="va">arb_heldeltid</span> <span class="op">*</span> <span class="va">pers_kjoenn</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">s5b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SSBtools/man/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out5</span>, <span class="op">~</span><span class="op">(</span><span class="va">arb_fylke</span> <span class="op">+</span> <span class="va">pers_kommnr</span><span class="op">)</span> <span class="op">*</span> <span class="va">yrke1</span> <span class="op">*</span> <span class="va">pers_kjoenn</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s5a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out5</span>, <span class="op">~</span><span class="va">arb_fylke</span> <span class="op">*</span> <span class="op">(</span><span class="va">yrke1</span> <span class="op">+</span> <span class="va">yrke2</span><span class="op">)</span> <span class="op">*</span> <span class="va">arb_heldeltid</span> <span class="op">*</span> <span class="va">pers_kjoenn</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s5b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://statisticsnorway.github.io/ssb-ssbtools/reference/FormulaSelection.html" class="external-link">formula_selection</a></span><span class="op">(</span><span class="va">out5</span>, <span class="op">~</span><span class="op">(</span><span class="va">arb_fylke</span> <span class="op">+</span> <span class="va">pers_kommnr</span><span class="op">)</span> <span class="op">*</span> <span class="va">yrke1</span> <span class="op">*</span> <span class="va">pers_kjoenn</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s5a_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="long_sdclonn.html">long_sdclonn</a></span><span class="op">(</span><span class="va">s5a</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s5b_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="long_sdclonn.html">long_sdclonn</a></span><span class="op">(</span><span class="va">s5b</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -781,7 +788,7 @@ For disse radene er <code>regel_</code>-variablene og <code>regel_within_</code>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>
