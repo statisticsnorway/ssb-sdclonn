@@ -462,6 +462,7 @@ sdc_lonn <- function(data,
           }
         }
         if (!isFALSE(use_diff_groups)) {
+          double_vars_input <- double_vars 
           for (i in seq_along(double_vars)) {
             names_data <- names(data)
             data <- my_data_diff_groups(data, 
@@ -476,12 +477,17 @@ sdc_lonn <- function(data,
           comment(data) <- NULL
         }
       }
-      formula_decimal <- SSBtools::substitute_formula_vars(formula_decimal, double_vars)
     }
     
      
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
+      if (!is.null(double_vars)) {
+        formula <- SSBtools::substitute_formula_vars(formula, double_vars)
+        if (!isFALSE(use_diff_groups)) {
+          formula_no_diff <- SSBtools::substitute_formula_vars(formula, double_vars_input)
+        }
+      }
       dim_var <- all.vars(formula)
       within_ <- within
       if (!all(within_ %in% dim_var)) {
@@ -493,6 +499,14 @@ sdc_lonn <- function(data,
       if (any(is_formula)) {
         if (any(!is_formula)) {
           stop("Enten må både between og within være formel eller ingen av dem.")
+        }
+        if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+          formula_no_diff <- multiply_formulas(SSBtools::substitute_formula_vars(between, double_vars_input), 
+                                               SSBtools::substitute_formula_vars(within, double_vars_input))
+        }
+        if (!is.null(double_vars)) {
+          between <- SSBtools::substitute_formula_vars(between, double_vars)
+          within  <- SSBtools::substitute_formula_vars(within, double_vars)
         }
         formula <- multiply_formulas(between, within)
         dim_var <- NULL
@@ -970,12 +984,20 @@ sdc_lonn <- function(data,
   startCol <- attr(out$x, "startCol", exact = TRUE)
   
   out <- cbind(out$cross_table, out$fun_data, out$prikket, out$krav, out$regel, out$regel_within, out$rounded, out$sum_data)
-  
+
+  if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+    out <- out[!(names(out) %in% ignore_vars$ignore_diff)]
+    totCode <- totCode[!(names(totCode) %in% ignore_vars$ignore_diff)]
+  }
   
   if (!is.null(startCol)) {
     attr(out, "startRow") <- startCol
   }
   attr(out, "totCode") <- totCode
+  
+  if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+    out <- FormulaSelection_NEW(out, formula_no_diff)
+  }
   
   out
 }
@@ -1009,7 +1031,6 @@ fix_formula <- function(formula) {
 
 
 
-# Kopi fra dev-oyl-branch SdcForetakPerson
 my_data_diff_groups <- function(data, diff_name, ...) {
   ncol_data <- ncol(data)
   d <- SSBtools::data_diff_groups(data, ..., 
@@ -1017,6 +1038,11 @@ my_data_diff_groups <- function(data, diff_name, ...) {
                                                   diff_2_1 = paste0(diff_name, "_diff_2_1")))
   d_new <- d[-seq_len(ncol_data)]
   new_names <- names(d_new)[colSums(!is.na(d_new)) > 0]
+  
+  
+  d_new <- d[new_names]
+  new_names <- new_names[!duplicated_grouping(d_new)]
+  
   comment(d) <- new_names
   d
 }
@@ -1035,6 +1061,12 @@ candidates_ignore_vars <- function(ignore_vars, ..., crossTable) {
   candidates
 }
 
+
+
+duplicated_grouping <- function(df) {
+  z <- lapply(df, \(x) match(x, unique(x)))
+  duplicated(z)
+}
 
 
 
