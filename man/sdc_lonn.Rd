@@ -38,7 +38,10 @@ sdc_lonn(
   run_gauss = TRUE,
   roundBase = 0,
   roundMultiple = 1,
-  verbose = TRUE
+  verbose = TRUE,
+  double_vars = NULL,
+  double_priority = 0,
+  use_diff_groups = FALSE
 )
 }
 \arguments{
@@ -196,6 +199,25 @@ Det sørges også for ingen primærprikking i første runde ved
 \code{rounded_antall_arbeidsforhold} \code{<=} \code{roundBase} \code{*} \code{roundMultiple}.}
 
 \item{verbose}{Whether to print information during calculations.}
+
+\item{double_vars}{Spesifisering av doble nace-koder, f.eks:
+\code{list(nar8_begge = c("nar8", "nar8_ny"), nar17_begge = c("nar17", "nar17_ny"))}.
+Da brukes \code{nar8_begge} og \code{nar17_begge} i \code{between}-formel,
+mens de andre kodene er variablene i \code{data} for gammel og ny standard.}
+
+\item{double_priority}{Spesifisering av prioritet tilknyttet doble nace-koder, samt spesifisering av spesielle kjøringer.
+Mulige valg er
+\itemize{
+\item \strong{\code{0}:} Kun differanseceller nedprioriteres.
+\item \strong{\code{1} eller \code{2}:} Første eller andre nace-kode prioriteres.
+\item \strong{\code{-1} eller \code{-2}:} Kjøring med kun første eller andre nace-kode.
+\item \strong{\code{-9}:}  Kjøring ute bruk av prioritering (for testing).
+}}
+
+\item{use_diff_groups}{Hvorvidt differanseceller skal hensyntas. Mulige valg er
+\code{FALSE} (nei),
+\code{TRUE} (kun enkle differanser) eller
+\code{"extra"} (kompliserte differanseceller inkluderes).}
 }
 \value{
 data frame eller liste

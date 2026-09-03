@@ -221,6 +221,22 @@
 #'                   
 #' @param verbose Whether to print information during calculations.
 #' 
+#' @param double_vars Spesifisering av doble nace-koder, f.eks: 
+#'                           `list(nar8_begge = c("nar8", "nar8_ny"), nar17_begge = c("nar17", "nar17_ny"))`.
+#'                    Da brukes `nar8_begge` og `nar17_begge` i `between`-formel, 
+#'                    mens de andre kodene er variablene i `data` for gammel og ny standard. 
+#' @param double_priority Spesifisering av prioritet tilknyttet doble nace-koder, samt spesifisering av spesielle kjøringer. 
+#'                        Mulige valg er 
+#' * **`0`:** Kun differanseceller nedprioriteres.
+#' * **`1` eller `2`:** Første eller andre nace-kode prioriteres.
+#' * **`-1` eller `-2`:** Kjøring med kun første eller andre nace-kode.
+#' * **`-9`:**  Kjøring ute bruk av prioritering (for testing). 
+#' @param use_diff_groups Hvorvidt differanseceller skal hensyntas. Mulige valg er 
+#'                        `FALSE` (nei), 
+#'                        `TRUE` (kun enkle differanser) eller 
+#'                        `"extra"` (kompliserte differanseceller inkluderes).  
+#' 
+#' 
 #' @seealso Se ekstra detaljer: \code{\link{sdc_lonn_extra_details}}.
 #'
 #' @return  data frame eller liste 
@@ -364,7 +380,10 @@ sdc_lonn <- function(data,
                      run_gauss = TRUE, 
                      roundBase = 0,
                      roundMultiple = 1,
-                     verbose = TRUE){
+                     verbose = TRUE,
+                     double_vars = NULL,
+                     double_priority = 0,
+                     use_diff_groups = FALSE){
   
   if (!is.null(dim_var_extra) & avoidHierarchical) {
     dim_var_extra <- NULL
@@ -417,6 +436,8 @@ sdc_lonn <- function(data,
   
   rename_extra <- NULL
   
+  ignore_vars <- list()
+  
   ##############################################################################
   ##############################################################################
   if(!is.data.frame(data) & all(c("cross_table", "fun_data", "x") %in% names(data))){
@@ -425,6 +446,39 @@ sdc_lonn <- function(data,
   } else {  ########### START - Vanlig input-data. Altså ikke "aggregated" i input.  
   
     data <- as.data.frame(data) # Fiks for tibble og data.table input
+    
+    
+    if (!is.null(double_vars)) {
+      if (double_priority %in% c(-1, -2)) {
+        for (i in seq_along(double_vars)) {
+          double_vars[[i]] <- double_vars[[i]][-double_priority]
+        }
+      } else {
+        ignore_vars <- list(ignore_vars = character(0), ignore_diff = character(0))
+        for (i in seq_along(double_vars)) {
+          if (double_priority >= 1) {
+            ignore_vars[["ignore_vars"]] <- 
+              c(ignore_vars[["ignore_vars"]], rev(double_vars[[i]])[double_priority])
+          }
+        }
+        if (!isFALSE(use_diff_groups)) {
+          for (i in seq_along(double_vars)) {
+            names_data <- names(data)
+            data <- my_data_diff_groups(data, 
+                                        input_vars = double_vars[[i]], 
+                                        diff_extra = identical(use_diff_groups, "extra"), 
+                                        diff_name = names(double_vars)[i])
+            if (double_priority >= 0) {
+              ignore_vars[["ignore_diff"]] <- c(ignore_vars[["ignore_diff"]], comment(data))
+            }
+            double_vars[[i]] <- c(double_vars[[i]], comment(data))
+          }
+          comment(data) <- NULL
+        }
+      }
+      formula_decimal <- SSBtools::substitute_formula_vars(formula_decimal, double_vars)
+    }
+    
      
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
@@ -951,6 +1005,34 @@ fix_formula <- function(formula) {
     }
   }
   as.formula(formula)
+}
+
+
+
+# Kopi fra dev-oyl-branch SdcForetakPerson
+my_data_diff_groups <- function(data, diff_name, ...) {
+  ncol_data <- ncol(data)
+  d <- SSBtools::data_diff_groups(data, ..., 
+                                  output_vars = c(diff_1_2 = paste0(diff_name, "_diff_1_2"), 
+                                                  diff_2_1 = paste0(diff_name, "_diff_2_1")))
+  d_new <- d[-seq_len(ncol_data)]
+  new_names <- names(d_new)[colSums(!is.na(d_new)) > 0]
+  comment(d) <- new_names
+  d
+}
+
+
+# Kopi fra dev-oyl-branch SdcForetakPerson
+candidates_ignore_vars <- function(ignore_vars, ..., crossTable) {
+  candidates <- GaussSuppression::CandidatesDefault(...)
+  for (j in seq_along(ignore_vars)) {
+    to_ignore <- rep(FALSE, length(candidates))
+    for (i in seq_along(ignore_vars[[j]])) {
+      to_ignore[(crossTable[[ignore_vars[[j]][i]]])[candidates] != "Total"] <- TRUE
+    }
+    candidates <- c(candidates[!to_ignore], candidates[to_ignore])
+  }
+  candidates
 }
 
 
