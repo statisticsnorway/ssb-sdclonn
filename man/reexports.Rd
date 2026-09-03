@@ -11,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{SSBtools}{\code{\link[SSBtools:FormulaSelection]{formula_selection}}}
+  \item{SSBtools}{\code{\link[SSBtools:formula_selection]{formula_selection()}}}
 }}
 

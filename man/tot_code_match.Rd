@@ -32,8 +32,6 @@ tot_code_match(
 
 \item{y_tot_code}{y_tot_code}
 
-\item{both}{}
-
 \item{complete_match}{Kun for testing. TRUE skal gi samme svar, men ikke like rask kode.}
 }
 \value{
