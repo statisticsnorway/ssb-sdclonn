@@ -40,7 +40,7 @@ FormulaSelection_NEW <- function(x, formula, intercept = NA, logical = FALSE) {
   selection <- rep(FALSE, n)
   for (i in seq_along(terms)) {
     ma <- match(SSBtools:::OrderedVarNames(terms[i]), SSBtools:::OrderedVarNames(names(startInd)))
-    selection[SeqInc(startInd[ma], (startInd[ma + 1] - 1))] <- TRUE
+    selection[SSBtools::SeqInc(startInd[ma], (startInd[ma + 1] - 1))] <- TRUE
   }
   if (logical) {
     return(selection)
