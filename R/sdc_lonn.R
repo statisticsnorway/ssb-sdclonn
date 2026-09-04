@@ -446,6 +446,7 @@ sdc_lonn <- function(data,
   } else {  ########### START - Vanlig input-data. Altså ikke "aggregated" i input.  
   
     data <- as.data.frame(data) # Fiks for tibble og data.table input
+    ncol_input_data <- ncol(data)
     
     
     if (!is.null(double_vars)) {
@@ -475,6 +476,17 @@ sdc_lonn <- function(data,
             double_vars[[i]] <- c(double_vars[[i]], comment(data))
           }
           comment(data) <- NULL
+        }
+        idx <- duplicated_grouping(data[SSBtools::SeqInc(ncol_input_data+1, ncol(data))],
+                                   idx = TRUE)
+        
+        added_names <- names(data)[(SSBtools::SeqInc(ncol_input_data+1, ncol(data)))]
+        name_map <- setNames(added_names[idx], added_names)
+        duplicated_vars <- names(data)[(SSBtools::SeqInc(ncol_input_data+1, ncol(data)))[duplicated(idx)]]
+        data <- data[!(names(data) %in% duplicated_vars)]
+        ignore_vars[["ignore_diff"]] <- unique(map_names(ignore_vars[["ignore_diff"]], name_map))
+        for (i in seq_along(double_vars)) {
+          double_vars[[i]] <- unique(map_names(double_vars[[i]], name_map))
         }
       }
     }
@@ -998,7 +1010,6 @@ sdc_lonn <- function(data,
   if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
     out <- FormulaSelection_NEW(out, formula_no_diff)
   }
-  
   out
 }
                      
@@ -1038,11 +1049,8 @@ my_data_diff_groups <- function(data, diff_name, ...) {
                                                   diff_2_1 = paste0(diff_name, "_diff_2_1")))
   d_new <- d[-seq_len(ncol_data)]
   new_names <- names(d_new)[colSums(!is.na(d_new)) > 0]
-  
-  
   d_new <- d[new_names]
   new_names <- new_names[!duplicated_grouping(d_new)]
-  
   comment(d) <- new_names
   d
 }
@@ -1063,10 +1071,22 @@ candidates_ignore_vars <- function(ignore_vars, ..., crossTable) {
 
 
 
-duplicated_grouping <- function(df) {
-  z <- lapply(df, \(x) match(x, unique(x)))
+duplicated_grouping <- function(df, idx = FALSE) {
+  z <- lapply(df, function(x) {
+    ma <- match(x, unique(x))
+    ma[is.na(x)] <- 0L
+    ma
+  })
+  if (idx) {
+    return(match(z, z))
+  }
   duplicated(z)
 }
 
 
 
+map_names <- function(vars, name_map) {
+  i <- match(vars, names(name_map))
+  vars[!is.na(i)] <- name_map[i[!is.na(i)]]
+  vars
+}
