@@ -435,8 +435,8 @@ sdc_lonn <- function(data,
   }
   
   rename_extra <- NULL
-  
   ignore_vars <- list()
+  added_names <- character(0)
   
   ##############################################################################
   ##############################################################################
@@ -484,6 +484,7 @@ sdc_lonn <- function(data,
         name_map <- setNames(added_names[idx], added_names)
         duplicated_vars <- names(data)[(SSBtools::SeqInc(ncol_input_data+1, ncol(data)))[duplicated(idx)]]
         data <- data[!(names(data) %in% duplicated_vars)]
+        added_names <- unique(map_names(added_names, name_map))
         ignore_vars[["ignore_diff"]] <- unique(map_names(ignore_vars[["ignore_diff"]], name_map))
         for (i in seq_along(double_vars)) {
           double_vars[[i]] <- unique(map_names(double_vars[[i]], name_map))
@@ -794,7 +795,8 @@ sdc_lonn <- function(data,
   # men 0-ere laget ved extend0 foretrekkes til prikking på vanlig måte. 
   # Denne warningen unngås også: 
   #    "Cells with empty input will never be secondary suppressed. Extend input data with zeros?"
-  candidates <- CandidatesDefault(freq = out$fun_data$antall_arbeidsforhold + sign(colSums(out$x)), x = out$x, secondaryZeros = FALSE, weight = NULL)
+  candidates <- candidates_ignore_vars(ignore_vars = ignore_vars, crossTable = out$cross_table,
+    freq = out$fun_data$antall_arbeidsforhold + sign(colSums(out$x)), x = out$x, secondaryZeros = FALSE, weight = NULL)
   
   # Må ha to typer singleton
   # Må gjøre om til integer
@@ -998,8 +1000,8 @@ sdc_lonn <- function(data,
   out <- cbind(out$cross_table, out$fun_data, out$prikket, out$krav, out$regel, out$regel_within, out$rounded, out$sum_data)
 
   if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
-    out <- out[!(names(out) %in% ignore_vars$ignore_diff)]
-    totCode <- totCode[!(names(totCode) %in% ignore_vars$ignore_diff)]
+    out <- out[!(names(out) %in% added_names)]
+    totCode <- totCode[!(names(totCode) %in% added_names)]
   }
   
   if (!is.null(startCol)) {
@@ -1056,13 +1058,17 @@ my_data_diff_groups <- function(data, diff_name, ...) {
 }
 
 
-# Kopi fra dev-oyl-branch SdcForetakPerson
-candidates_ignore_vars <- function(ignore_vars, ..., crossTable) {
-  candidates <- GaussSuppression::CandidatesDefault(...)
+
+candidates_ignore_vars <- function(ignore_vars, ..., x, crossTable) {
+  candidates <- GaussSuppression::CandidatesDefault(..., x = x, crossTable = crossTable)
+  empty <- colSums(x) == 0
   for (j in seq_along(ignore_vars)) {
     to_ignore <- rep(FALSE, length(candidates))
     for (i in seq_along(ignore_vars[[j]])) {
       to_ignore[(crossTable[[ignore_vars[[j]][i]]])[candidates] != "Total"] <- TRUE
+      # empty not ignored to avoid warning 
+      #         "Cells with empty input will never be secondary suppressed...."
+      to_ignore[empty[candidates]] <- FALSE
     }
     candidates <- c(candidates[!to_ignore], candidates[to_ignore])
   }
