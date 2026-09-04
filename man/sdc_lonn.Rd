@@ -41,7 +41,8 @@ sdc_lonn(
   verbose = TRUE,
   double_vars = NULL,
   double_priority = 0,
-  use_diff_groups = FALSE
+  use_diff_groups = FALSE,
+  remove_diff_vars = TRUE
 )
 }
 \arguments{
@@ -218,6 +219,11 @@ Mulige valg er
 \code{FALSE} (nei),
 \code{TRUE} (kun enkle differanser) eller
 \code{"extra"} (kompliserte differanseceller inkluderes).}
+
+\item{remove_diff_vars}{Ved \code{TRUE} (default) fjernes differanseceller fra vanlig
+data.frame-output. Merk at ved \code{FALSE} kan navn på differanseceller noen
+ganger se ulogiske ut. Dette skyldes at ulike variabelnavn for variabler
+som i praksis er like, unngås.}
 }
 \value{
 data frame eller liste
@@ -421,6 +427,45 @@ out5b <- sdc_lonn(a, formula = ~arb_fylke * (yrke1 + yrke2) * arb_heldeltid * pe
                  k1 = 80, k2 = 90,
                  suppressed_data = list(out6, out7, out8))                
                  
+
+###############################################################
+#  Bruk av double_vars, use_diff_groups og double_priority
+###############################################################
+
+# Genererer først noen doble yrke-koder 
+# som kan tenkes på som nace-koder
+
+a <- sdclonn_data("syntetisk_5000")
+a$yrke11 <- a$yrke1
+a$yrke22 <- a$yrke2
+a$yrke33 <- a$yrke3
+ind = 1:22
+a$yrke11[ind] <-paste0("x", a$yrke1[rev(ind)])
+a$yrke22[ind] <-paste0("x", a$yrke2[rev(ind)])
+a$yrke33[ind] <-paste0("x", a$yrke3[rev(ind)])
+
+
+out9a  <- sdc_lonn(a, between = ~yrke333 + (yrke222 + yrke111) * sektor3, 
+                   within = ~arb_heldeltid, k1 = 85, k2 = 95, 
+                   double_vars = list(
+                   yrke111 = c("yrke1", "yrke11"),
+                   yrke222 = c("yrke2", "yrke22"), 
+                   yrke333 = c("yrke3", "yrke33")), 
+                   use_diff_groups = TRUE, 
+                   double_priority = 1)
+ 
+out9b  <- sdc_lonn(a, between = ~yrke333 + (yrke222 + yrke111) * sektor3, 
+                   within = ~arb_heldeltid, k1 = 85, k2 = 95, 
+                   double_vars = list(
+                   yrke111 = c("yrke1", "yrke11"),
+                   yrke222 = c("yrke2", "yrke22"), 
+                   yrke333 = c("yrke3", "yrke33")), 
+                   use_diff_groups = "extra", 
+                   double_priority = 2)                    
+                     
+SSBtools::FormulaSelection(out9a, ~yrke1 * sektor3)[c(1:5, 28)]
+SSBtools::FormulaSelection(out9b, ~yrke1 * sektor3)[c(1:5, 28)]
+SSBtools::FormulaSelection(out9b, ~yrke11 * sektor3)[c(1:5, 28)]
 
 }
 \seealso{
