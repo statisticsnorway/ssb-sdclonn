@@ -121,7 +121,7 @@ tot_code_replace <- function(data, dim_var, tot_code, replaced_only =TRUE, inclu
 #' @param y y
 #' @param x_tot_code x_tot_code 
 #' @param y_tot_code y_tot_code
-#' @param both 
+#' @param both both 
 #' @param complete_match Kun for testing. TRUE skal gi samme svar, men ikke like rask kode. 
 #'
 #' @return integer vector or list 

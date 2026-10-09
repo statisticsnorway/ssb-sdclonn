@@ -221,6 +221,26 @@
 #'                   
 #' @param verbose Whether to print information during calculations.
 #' 
+#' @param double_vars Spesifisering av doble nace-koder, f.eks: 
+#'                           `list(nar8_begge = c("nar8", "nar8_ny"), nar17_begge = c("nar17", "nar17_ny"))`.
+#'                    Da brukes `nar8_begge` og `nar17_begge` i `between`-formel, 
+#'                    mens de andre kodene er variablene i `data` for gammel og ny standard. 
+#' @param double_priority Spesifisering av prioritet tilknyttet doble nace-koder, samt spesifisering av spesielle kjøringer. 
+#'                        Mulige valg er 
+#' * **`0`:** Kun differanseceller nedprioriteres.
+#' * **`1` eller `2`:** Første eller andre nace-kode prioriteres.
+#' * **`-1` eller `-2`:** Kjøring med kun første eller andre nace-kode.
+#' * **`-9`:**  Kjøring ute bruk av prioritering (for testing). 
+#' @param use_diff_groups Hvorvidt differanseceller skal hensyntas. Mulige valg er 
+#'                        `FALSE` (nei), 
+#'                        `TRUE` (kun enkle differanser) eller 
+#'                        `"extra"` (kompliserte differanseceller inkluderes).  
+#'                        
+#' @param remove_diff_vars Ved `TRUE` (default) fjernes differanseceller fra vanlig
+#'          data.frame-output. Merk at ved `FALSE` kan navn på differanseceller noen
+#'          ganger se ulogiske ut. Dette skyldes at ulike variabelnavn for variabler
+#'          som i praksis er like, unngås.
+#' 
 #' @seealso Se ekstra detaljer: \code{\link{sdc_lonn_extra_details}}.
 #'
 #' @return  data frame eller liste 
@@ -331,6 +351,45 @@
 #'                  suppressed_data = list(out6, out7, out8))                
 #'                  
 #' 
+#' ###############################################################
+#' #  Bruk av double_vars, use_diff_groups og double_priority
+#' ###############################################################
+#' 
+#' # Genererer først noen doble yrke-koder 
+#' # som kan tenkes på som nace-koder
+#' 
+#' a <- sdclonn_data("syntetisk_5000")
+#' a$yrke11 <- a$yrke1
+#' a$yrke22 <- a$yrke2
+#' a$yrke33 <- a$yrke3
+#' ind = 1:22
+#' a$yrke11[ind] <-paste0("x", a$yrke1[rev(ind)])
+#' a$yrke22[ind] <-paste0("x", a$yrke2[rev(ind)])
+#' a$yrke33[ind] <-paste0("x", a$yrke3[rev(ind)])
+#' 
+#' 
+#' out9a  <- sdc_lonn(a, between = ~yrke333 + (yrke222 + yrke111) * sektor3, 
+#'                    within = ~arb_heldeltid, k1 = 85, k2 = 95, 
+#'                    double_vars = list(
+#'                    yrke111 = c("yrke1", "yrke11"),
+#'                    yrke222 = c("yrke2", "yrke22"), 
+#'                    yrke333 = c("yrke3", "yrke33")), 
+#'                    use_diff_groups = TRUE, 
+#'                    double_priority = 1)
+#'  
+#' out9b  <- sdc_lonn(a, between = ~yrke333 + (yrke222 + yrke111) * sektor3, 
+#'                    within = ~arb_heldeltid, k1 = 85, k2 = 95, 
+#'                    double_vars = list(
+#'                    yrke111 = c("yrke1", "yrke11"),
+#'                    yrke222 = c("yrke2", "yrke22"), 
+#'                    yrke333 = c("yrke3", "yrke33")), 
+#'                    use_diff_groups = "extra", 
+#'                    double_priority = 2)                    
+#'                      
+#' SSBtools::FormulaSelection(out9a, ~yrke1 * sektor3)[c(1:5, 28)]
+#' SSBtools::FormulaSelection(out9b, ~yrke1 * sektor3)[c(1:5, 28)]
+#' SSBtools::FormulaSelection(out9b, ~yrke11 * sektor3)[c(1:5, 28)]
+#' 
 sdc_lonn <- function(data, 
                      between = NULL,
                      within = NULL, 
@@ -364,7 +423,11 @@ sdc_lonn <- function(data,
                      run_gauss = TRUE, 
                      roundBase = 0,
                      roundMultiple = 1,
-                     verbose = TRUE){
+                     verbose = TRUE,
+                     double_vars = NULL,
+                     double_priority = 0,
+                     use_diff_groups = FALSE, 
+                     remove_diff_vars = TRUE){
   
   if (!is.null(dim_var_extra) & avoidHierarchical) {
     dim_var_extra <- NULL
@@ -416,6 +479,8 @@ sdc_lonn <- function(data,
   }
   
   rename_extra <- NULL
+  ignore_vars <- list()
+  added_names <- character(0)
   
   ##############################################################################
   ##############################################################################
@@ -425,9 +490,61 @@ sdc_lonn <- function(data,
   } else {  ########### START - Vanlig input-data. Altså ikke "aggregated" i input.  
   
     data <- as.data.frame(data) # Fiks for tibble og data.table input
+    ncol_input_data <- ncol(data)
+    
+    
+    if (!is.null(double_vars)) {
+      if (double_priority %in% c(-1, -2)) {
+        for (i in seq_along(double_vars)) {
+          double_vars[[i]] <- double_vars[[i]][-double_priority]
+        }
+      } else {
+        ignore_vars <- list(ignore_vars = character(0), ignore_diff = character(0))
+        for (i in seq_along(double_vars)) {
+          if (double_priority >= 1) {
+            ignore_vars[["ignore_vars"]] <- 
+              c(ignore_vars[["ignore_vars"]], rev(double_vars[[i]])[double_priority])
+          }
+        }
+        if (!isFALSE(use_diff_groups)) {
+          double_vars_input <- double_vars 
+          for (i in seq_along(double_vars)) {
+            names_data <- names(data)
+            data <- my_data_diff_groups(data, 
+                                        input_vars = double_vars[[i]], 
+                                        diff_extra = identical(use_diff_groups, "extra"), 
+                                        diff_name = names(double_vars)[i])
+            if (double_priority >= 0) {
+              ignore_vars[["ignore_diff"]] <- c(ignore_vars[["ignore_diff"]], comment(data))
+            }
+            double_vars[[i]] <- c(double_vars[[i]], comment(data))
+          }
+          comment(data) <- NULL
+        }
+        idx <- duplicated_grouping(data[SSBtools::SeqInc(ncol_input_data+1, ncol(data))],
+                                   idx = TRUE)
+        
+        added_names <- names(data)[(SSBtools::SeqInc(ncol_input_data+1, ncol(data)))]
+        name_map <- setNames(added_names[idx], added_names)
+        duplicated_vars <- names(data)[(SSBtools::SeqInc(ncol_input_data+1, ncol(data)))[duplicated(idx)]]
+        data <- data[!(names(data) %in% duplicated_vars)]
+        added_names <- unique(map_names(added_names, name_map))
+        ignore_vars[["ignore_diff"]] <- unique(map_names(ignore_vars[["ignore_diff"]], name_map))
+        for (i in seq_along(double_vars)) {
+          double_vars[[i]] <- unique(map_names(double_vars[[i]], name_map))
+        }
+      }
+    }
+    
      
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
+      if (!is.null(double_vars)) {
+        formula <- SSBtools::substitute_formula_vars(formula, double_vars)
+        if (!isFALSE(use_diff_groups)) {
+          formula_no_diff <- SSBtools::substitute_formula_vars(formula, double_vars_input)
+        }
+      }
       dim_var <- all.vars(formula)
       within_ <- within
       if (!all(within_ %in% dim_var)) {
@@ -439,6 +556,14 @@ sdc_lonn <- function(data,
       if (any(is_formula)) {
         if (any(!is_formula)) {
           stop("Enten må både between og within være formel eller ingen av dem.")
+        }
+        if ((!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+          formula_no_diff <- multiply_formulas(SSBtools::substitute_formula_vars(between, double_vars_input), 
+                                               SSBtools::substitute_formula_vars(within, double_vars_input))
+        }
+        if (!is.null(double_vars)) {
+          between <- SSBtools::substitute_formula_vars(between, double_vars)
+          within  <- SSBtools::substitute_formula_vars(within, double_vars)
         }
         formula <- multiply_formulas(between, within)
         dim_var <- NULL
@@ -714,7 +839,8 @@ sdc_lonn <- function(data,
   # men 0-ere laget ved extend0 foretrekkes til prikking på vanlig måte. 
   # Denne warningen unngås også: 
   #    "Cells with empty input will never be secondary suppressed. Extend input data with zeros?"
-  candidates <- CandidatesDefault(freq = out$fun_data$antall_arbeidsforhold + sign(colSums(out$x)), x = out$x, secondaryZeros = FALSE, weight = NULL)
+  candidates <- candidates_ignore_vars(ignore_vars = ignore_vars, crossTable = out$cross_table,
+    freq = out$fun_data$antall_arbeidsforhold + sign(colSums(out$x)), x = out$x, secondaryZeros = FALSE, weight = NULL)
   
   # Må ha to typer singleton
   # Må gjøre om til integer
@@ -916,13 +1042,20 @@ sdc_lonn <- function(data,
   startCol <- attr(out$x, "startCol", exact = TRUE)
   
   out <- cbind(out$cross_table, out$fun_data, out$prikket, out$krav, out$regel, out$regel_within, out$rounded, out$sum_data)
-  
+
+  if (remove_diff_vars & (!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+    out <- out[!(names(out) %in% added_names)]
+    totCode <- totCode[!(names(totCode) %in% added_names)]
+  }
   
   if (!is.null(startCol)) {
     attr(out, "startRow") <- startCol
   }
   attr(out, "totCode") <- totCode
   
+  if (remove_diff_vars & (!is.null(double_vars)) & (!isFALSE(use_diff_groups))) {
+    out <- FormulaSelection_NEW(out, formula_no_diff)
+  }
   out
 }
                      
@@ -955,4 +1088,55 @@ fix_formula <- function(formula) {
 
 
 
+my_data_diff_groups <- function(data, diff_name, ...) {
+  ncol_data <- ncol(data)
+  d <- SSBtools::data_diff_groups(data, ..., 
+                                  output_vars = c(diff_1_2 = paste0(diff_name, "_diff_1_2"), 
+                                                  diff_2_1 = paste0(diff_name, "_diff_2_1")))
+  d_new <- d[-seq_len(ncol_data)]
+  new_names <- names(d_new)[colSums(!is.na(d_new)) > 0]
+  d_new <- d[new_names]
+  new_names <- new_names[!duplicated_grouping(d_new)]
+  comment(d) <- new_names
+  d
+}
 
+
+
+candidates_ignore_vars <- function(ignore_vars, ..., x, crossTable) {
+  candidates <- GaussSuppression::CandidatesDefault(..., x = x, crossTable = crossTable)
+  empty <- colSums(x) == 0
+  for (j in seq_along(ignore_vars)) {
+    to_ignore <- rep(FALSE, length(candidates))
+    for (i in seq_along(ignore_vars[[j]])) {
+      to_ignore[(crossTable[[ignore_vars[[j]][i]]])[candidates] != "Total"] <- TRUE
+      # empty not ignored to avoid warning 
+      #         "Cells with empty input will never be secondary suppressed...."
+      to_ignore[empty[candidates]] <- FALSE
+    }
+    candidates <- c(candidates[!to_ignore], candidates[to_ignore])
+  }
+  candidates
+}
+
+
+
+duplicated_grouping <- function(df, idx = FALSE) {
+  z <- lapply(df, function(x) {
+    ma <- match(x, unique(x))
+    ma[is.na(x)] <- 0L
+    ma
+  })
+  if (idx) {
+    return(match(z, z))
+  }
+  duplicated(z)
+}
+
+
+
+map_names <- function(vars, name_map) {
+  i <- match(vars, names(name_map))
+  vars[!is.na(i)] <- name_map[i[!is.na(i)]]
+  vars
+}
