@@ -31,11 +31,11 @@ A formula
 ``` r
 multiply_formulas(~x, ~y)
 #> ~(x) * (y)
-#> <environment: 0x556503d85f58>
+#> <environment: 0x5fefa8ae2ec0>
 multiply_formulas(~x+y, ~a*b + d:e)
 #> ~(x + y) * (a * b + d:e)
-#> <environment: 0x556503d85f58>
+#> <environment: 0x5fefa8ae2ec0>
 multiply_formulas(~x+y, ~a*b + d:e, ":")
 #> ~(x + y):(a * b + d:e)
-#> <environment: 0x556503d85f58>
+#> <environment: 0x5fefa8ae2ec0>
 ```
