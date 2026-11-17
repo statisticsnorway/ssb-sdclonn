@@ -540,10 +540,10 @@ sdc_lonn <- function(data,
     if (!is.null(formula)) {
       formula <- fix_formula(formula)
       if (!is.null(double_vars)) {
-        formula <- SSBtools::substitute_formula_vars(formula, double_vars)
         if (!isFALSE(use_diff_groups)) {
           formula_no_diff <- SSBtools::substitute_formula_vars(formula, double_vars_input)
         }
+        formula <- SSBtools::substitute_formula_vars(formula, double_vars)
       }
       dim_var <- all.vars(formula)
       within_ <- within
